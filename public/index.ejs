@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home Page</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        padding: 5vw;
+      }
+      input {
+        margin-top: 20px;
+        height: 30px;
+        width: 200px;
+        padding-left: 5px;
+      }
+      button {
+        padding: 5px 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Hello from home page...</h1>
+    <input id="inpt" type="text" placeholder="Enter amount" />
+    <button id="btn" type="button">Pay</button>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  </body>
+  <script>
+    const button = document.getElementById('btn')
+
+    button.addEventListener('click', async () => {
+      const input = document.getElementById('inpt')
+
+      if (!input.value || isNaN(input.value)) {
+        alert('Please enter a valid amount')
+        return
+      }
+      const response = await fetch('/order', {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json',
+        },
+        body: JSON.stringify({ amount: input.value }),
+      })
+
+      const finalResponse = await response.json()
+
+      const { orderDetails, key } = finalResponse
+
+      const options = {
+        key,
+        amount: orderDetails.amount,
+        currency: 'INR',
+        image:
+          'https://img.freepik.com/free-vector/bird-colorful-logo-gradient-vector_343694-1365.jpg?size=338&ext=jpg&ga=GA1.1.1700460183.1708300800&semt=sph',
+        order_id: orderDetails.id,
+        // handler: function (response) {
+        //   alert(response.razorpay_payment_id)
+        //   alert(response.razorpay_order_id)
+        //   alert(response.razorpay_signature)
+        // },
+        callback_url: 'http://localhost:3000/order-done',
+        theme: {
+          color: '#A020F0',
+        },
+      }
+
+      var rzp1 = new Razorpay(options)
+      rzp1.open()
+    })
+  </script>
+</html>
